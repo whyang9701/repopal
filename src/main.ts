@@ -1,34 +1,43 @@
-/**
- * Some predefined delay values (in milliseconds).
- */
-export enum Delays {
-  Short = 500,
-  Medium = 2000,
-  Long = 5000,
-}
+#!/usr/bin/env node
 
-/**
- * Returns a Promise<string> that resolves after a given time.
- *
- * @param {string} name - A name.
- * @param {number=} [delay=Delays.Medium] - A number of milliseconds to delay resolution of the Promise.
- * @returns {Promise<string>}
- */
-function delayedHello(
-  name: string,
-  delay: number = Delays.Medium,
-): Promise<string> {
-  return new Promise((resolve: (value?: string) => void) =>
-    setTimeout(() => resolve(`Hello, ${name}`), delay),
-  );
-}
+import { Command } from 'commander'
+import { simpleGit } from "simple-git";
+import { format } from 'date-fns';
+import * as path from 'path'
 
-// Please see the comment in the .eslintrc.json file about the suppressed rule!
-// Below is an example of how to use ESLint errors suppression. You can read more
-// at https://eslint.org/docs/latest/user-guide/configuring/rules#disabling-rules
+const program = new Command();
+program
+  .name('repopal')
+  .description('repo reader for LLM') .version('0.0.1','-v, --version', 'output the current version')
+  .argument('<args...>')
+  .action( async ( args )=>{
+    let currentWorkingDirectory:string
+    if(args.length === 1){
+      currentWorkingDirectory = path.join(process.cwd(),args[0])
+    }
+    else{
+      currentWorkingDirectory = process.cwd();
+    }
+    const git = simpleGit({ baseDir: currentWorkingDirectory})
+    const logResult = await git.log()
+    const branchResult = await git.branch()
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type, @typescript-eslint/no-explicit-any
-export async function greeter(name: any) {
-  // The name parameter should be of type string. Any is used only to trigger the rule.
-  return await delayedHello(name, Delays.Long);
-}
+    console.log(`# Repository Context
+## File System Location
+
+${currentWorkingDirectory}
+
+## Git Info
+
+
+- Commit: ${logResult.latest.hash}
+- Branch: ${branchResult.current}
+- Author: ${logResult.latest.author_name} <${logResult.latest.author_email}>
+- Date: ${format(logResult.latest.date, "EEE MMM dd HH:mm:ss yyyy XXX")}
+
+## Structure
+`)
+  })
+program.parse();
+
+
