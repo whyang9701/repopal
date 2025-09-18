@@ -5,7 +5,7 @@ import { simpleGit } from "simple-git"
 import { format } from 'date-fns'
 import * as path from 'path'
 import fs from 'fs'
-import { buildDirectoryHierarchy, getDirectoryStructureString, getFiles, Node } from './fileUtil.js'
+import { buildDirectoryHierarchy, getDirectoryStructureString, getFiles } from './fileUtil.js'
 
 const program = new Command()
 program
@@ -19,14 +19,14 @@ program
       // one argument, check args[0] is a directory or file
       if (args.length === 1 && fs.statSync(currentWorkingDirectory).isDirectory()) {
         const gitInfo = await getGitInfo(currentWorkingDirectory)
-        const dirStructure = await buildDirectoryHierarchy(currentWorkingDirectory)
-        outputString = await getOutputString(currentWorkingDirectory, gitInfo, dirStructure)
+        const filepathArray = await buildDirectoryHierarchy(currentWorkingDirectory)
+        outputString = await getOutputString(currentWorkingDirectory, gitInfo, filepathArray)
       }
       else { // single or multiple files
         currentWorkingDirectory = process.cwd()
         const gitInfo = await getGitInfo(currentWorkingDirectory)
-        const fileNodes = await getFiles(args)
-        outputString = await getOutputString(currentWorkingDirectory, gitInfo, fileNodes)
+        const filepathArray = await getFiles(args)
+        outputString = await getOutputString(currentWorkingDirectory, gitInfo, filepathArray)
       }
       console.log(outputString)
     }
@@ -63,7 +63,7 @@ function getGitInfoString(result): string {
 }
 
 // form final output string
-async function getOutputString(currentWorkingDirectory: string, gitInfo: object, dirStructure: Node): Promise<string> {
+async function getOutputString(currentWorkingDirectory: string, gitInfo: object, filePathArray: Array<string>): Promise<string> {
 
   return (`# Repository Context
 
@@ -78,7 +78,7 @@ ${getGitInfoString(gitInfo)}
 ## Structure
 
 ${'```'}
-${getDirectoryStructureString(dirStructure)}
+${getDirectoryStructureString(filePathArray)}
 ${'```'}
 `)
 

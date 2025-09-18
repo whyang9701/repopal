@@ -1,7 +1,7 @@
 // scripts/fileUtil.ts
 import fg from 'fast-glob'
 
-export interface Node {
+interface Node {
   name: string
   isDir: boolean
   children?: Map<string, Node>
@@ -43,7 +43,7 @@ function printTree(root: Node, prefix = ''): string {
   return lines.filter(Boolean).join('\n')
 }
 
-export async function buildDirectoryHierarchy(rootDir = '.'): Promise<Node> {
+export async function buildDirectoryHierarchy(rootDir = '.'): Promise<Array<string>> {
   // Collect files & directories
   const entries = await fg(['**/*'], {
     cwd: rootDir,
@@ -53,26 +53,22 @@ export async function buildDirectoryHierarchy(rootDir = '.'): Promise<Node> {
     ignore: ['**/node_modules/**', '**/.git/**']
   })
 
-  const root: Node = { name: '', isDir: true, children: new Map() }
+  return entries
 
-  for (const entry of entries) {
-    const isDir = entry.endsWith('/')
-    const cleaned = isDir ? entry.slice(0, -1) : entry
-    insert(root, cleaned, isDir)
-  }
-  return root
 }
 
-export async function getFiles(filesArray: Array<string>): Promise<Node> {
+export async function getFiles(filesArray: Array<string>): Promise<Array<string>> {
   // Collect files & directories
   const entries = await fg(filesArray, {
     cwd: '.',
-    dot: false,
+    dot: true,
     onlyFiles: true,
-    markDirectories: true,
-    ignore: ['**/node_modules/**', '**/.git/**']
   })
+  return entries
 
+}
+
+export function getDirectoryStructureString(entries): string {
   const root: Node = { name: '', isDir: true, children: new Map() }
 
   for (const entry of entries) {
@@ -80,9 +76,5 @@ export async function getFiles(filesArray: Array<string>): Promise<Node> {
     const cleaned = isDir ? entry.slice(0, -1) : entry
     insert(root, cleaned, isDir)
   }
-  return root
-}
-
-export function getDirectoryStructureString(node: Node): string {
-  return printTree(node)
+  return printTree(root)
 }
