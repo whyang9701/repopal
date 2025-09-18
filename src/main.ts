@@ -4,7 +4,8 @@ import { Command } from 'commander'
 import { simpleGit } from "simple-git"
 import { format } from 'date-fns'
 import * as path from 'path'
-import { getDirectoryStructure, getDirectoryStructureString } from './printTree.js'
+import fs from 'fs'
+import { buildDirectoryHierarchy, getDirectoryStructureString, getFiles, Node } from './fileUtil.js'
 
 const program = new Command()
 program
@@ -12,21 +13,30 @@ program
   .description('repo reader for LLM').version('0.0.1', '-v, --version', 'output the current version')
   .argument('<args...>')
   .action(async (args) => {
-    console.log(await getOutputString(args))
+    try {
+      let currentWorkingDirectory = path.join(process.cwd(), args[0])
+      let outputString: string
+      // one argument, check args[0] is a directory or file
+      if (args.length === 1 && fs.statSync(currentWorkingDirectory).isDirectory()) {
+        const gitInfo = await getGitInfo(currentWorkingDirectory)
+        const dirStructure = await buildDirectoryHierarchy(currentWorkingDirectory)
+        outputString = await getOutputString(currentWorkingDirectory, gitInfo, dirStructure)
+      }
+      else { // single or multiple files
+        currentWorkingDirectory = process.cwd()
+        const gitInfo = await getGitInfo(currentWorkingDirectory)
+        const fileNodes = await getFiles(args)
+        outputString = await getOutputString(currentWorkingDirectory, gitInfo, fileNodes)
+      }
+      console.log(outputString)
+    }
+    catch (err) {
+      console.error("Error: ", err.message)
+      process.exit(1)
+    }
   })
 program.parse()
 
-//get working directroy by args size
-function getCWD(args: Array<string>): string {
-  let currentWorkingDirectory: string
-  if (args.length === 1) {
-    currentWorkingDirectory = path.join(process.cwd(), args[0])
-  }
-  else {
-    currentWorkingDirectory = process.cwd()
-  }
-  return currentWorkingDirectory
-}
 
 //get git info
 async function getGitInfo(cwd): Promise<object> {
@@ -53,10 +63,8 @@ function getGitInfoString(result): string {
 }
 
 // form final output string
-async function getOutputString(args): Promise<string> {
-  const currentWorkingDirectory = getCWD(args)
-  const gitInfo = await getGitInfo(currentWorkingDirectory)
-  const dirStructure = await getDirectoryStructure(currentWorkingDirectory);
+async function getOutputString(currentWorkingDirectory: string, gitInfo: object, dirStructure: Node): Promise<string> {
+
   return (`# Repository Context
 
 ## File System Location
@@ -68,6 +76,7 @@ ${currentWorkingDirectory}
 ${getGitInfoString(gitInfo)}
 
 ## Structure
+
 ${'```'}
 ${getDirectoryStructureString(dirStructure)}
 ${'```'}
