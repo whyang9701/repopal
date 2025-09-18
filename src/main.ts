@@ -11,11 +11,12 @@ const program = new Command()
 program
   .name('repopal')
   .description('repo reader for LLM').version('0.1.0', '-v, --version', 'output the current version')
-  .argument('<args...>')
+  .argument('[args...]', 'directory to scan or list of files')
   .addOption(new Option('-o, --output <file>', 'output to file instead of console'))
   .addOption(new Option('--include <pattern>', 'include files matching the pattern, ignored if specific files are provided'))
   .addOption(new Option('--exclude <pattern>', 'exclude files matching the pattern, ignored if specific files are provided').conflicts('include'))
   .action(async (args, options) => {
+    args = args.length ? args : ['.']
     try {
       const includePatterns = options.include ? String(options.include).split(',') : ['**/*']
       const excludePatterns = options.exclude ? String(options.exclude).split(',') : []
