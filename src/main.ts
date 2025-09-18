@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { Command } from 'commander'
+import { Command, Option } from 'commander'
 import { simpleGit } from "simple-git"
 import { format } from 'date-fns'
 import * as path from 'path'
@@ -11,9 +11,10 @@ import {fileExtensionsToLanguageMap} from './fileMap.js'
 const program = new Command()
 program
   .name('repopal')
-  .description('repo reader for LLM').version('0.0.1', '-v, --version', 'output the current version')
+  .description('repo reader for LLM').version('0.1.0', '-v, --version', 'output the current version')
   .argument('<args...>')
-  .action(async (args) => {
+  .addOption(new Option('-o, --output <file>', 'output to file instead of console'))
+  .action(async (args, options) => {
     try {
       let currentWorkingDirectory = path.join(process.cwd(), args[0])
       let outputString: string
@@ -22,9 +23,6 @@ program
         const gitInfo = await getGitInfo(currentWorkingDirectory)
         const filePathArray = await buildDirectoryHierarchy(currentWorkingDirectory)
         outputString = await getOutputString(currentWorkingDirectory, gitInfo, filePathArray)
-
-
-
       }
       else { // single or multiple files
         currentWorkingDirectory = process.cwd()
@@ -32,7 +30,12 @@ program
         const filepathArray = await getFiles(args)
         outputString = await getOutputString(currentWorkingDirectory, gitInfo, filepathArray)
       }
-      console.log(outputString)
+
+      if (options.output) {
+        fs.writeFileSync(options.output, outputString)
+      } else {
+        console.log(outputString)
+      }
     }
     catch (err) {
       console.error("Error: ", err.message)
