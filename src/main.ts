@@ -19,8 +19,11 @@ program
       // one argument, check args[0] is a directory or file
       if (args.length === 1 && fs.statSync(currentWorkingDirectory).isDirectory()) {
         const gitInfo = await getGitInfo(currentWorkingDirectory)
-        const filepathArray = await buildDirectoryHierarchy(currentWorkingDirectory)
-        outputString = await getOutputString(currentWorkingDirectory, gitInfo, filepathArray)
+        const filePathArray = await buildDirectoryHierarchy(currentWorkingDirectory)
+        outputString = await getOutputString(currentWorkingDirectory, gitInfo, filePathArray)
+
+
+
       }
       else { // single or multiple files
         currentWorkingDirectory = process.cwd()
@@ -64,8 +67,7 @@ function getGitInfoString(result): string {
 
 // form final output string
 async function getOutputString(currentWorkingDirectory: string, gitInfo: object, filePathArray: Array<string>): Promise<string> {
-
-  return (`# Repository Context
+  let outputString = `# Repository Context
 
 ## File System Location
 
@@ -80,7 +82,40 @@ ${getGitInfoString(gitInfo)}
 ${'```'}
 ${getDirectoryStructureString(filePathArray)}
 ${'```'}
-`)
+
+## File Contents
+`
+  let lineCount = 0
+  filePathArray.forEach(filePath => {
+    const fullPath = path.join(currentWorkingDirectory, filePath)
+    const fileState = fs.statSync(fullPath)
+    // check if file is small enough
+    if (fileState.isFile() && fileState.size < 16 * 1024) {
+      // read each file content
+      const content = fs.readFileSync(fullPath)
+      lineCount += content.toString().split('\n').length
+      outputString += `
+### File: ${filePath}
+${'```'}
+${content}
+${'```'}
+            `
+    }
+    else if (fileState.isFile()) {
+      outputString += `
+### File: ${filePath}
+${'```'}
+File too large to include (over 16KB)
+${'```'}
+            `
+    }
+  })
+  outputString += `
+## Summary
+- Total files: ${filePathArray.length}
+- Total lines: ${lineCount}
+`
+  return outputString
 
 }
 
