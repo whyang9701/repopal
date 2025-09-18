@@ -6,6 +6,7 @@ import { format } from 'date-fns'
 import * as path from 'path'
 import fs from 'fs'
 import { buildDirectoryHierarchy, getDirectoryStructureString, getFiles } from './fileUtil.js'
+import {fileExtensionsToLanguageMap} from './fileMap.js'
 
 const program = new Command()
 program
@@ -88,6 +89,8 @@ ${'```'}
   let lineCount = 0
   filePathArray.forEach(filePath => {
     const fullPath = path.join(currentWorkingDirectory, filePath)
+    const ext = path.extname(filePath).toLowerCase()
+    const language = fileExtensionsToLanguageMap[ext] || ''
     const fileState = fs.statSync(fullPath)
     // check if file is small enough
     if (fileState.isFile() && fileState.size < 16 * 1024) {
@@ -96,9 +99,9 @@ ${'```'}
       lineCount += content.toString().split('\n').length
       outputString += `
 ### File: ${filePath}
-${'```'}
+${ext === '.md' ? '````' : '```'}${language}
 ${content}
-${'```'}
+${ext === '.md' ? '````' : '```'}
             `
     }
     else if (fileState.isFile()) {
