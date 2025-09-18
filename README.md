@@ -4,6 +4,8 @@ repo reader for LLM
 ## How to install
 1. git clone https://github.com/whyang9701/repopal.git
 2. cd repopal
+3. npm install
+4. npm run build
 3. npm link
 ## Features
 - Read and analyze repositories
@@ -87,7 +89,7 @@ tsconfig.release.json
 ## Additional Usage
 ### Specify include patterns (comma-separated):
 ```bash
-repopal --include '**/*.js' .
+repopal --include '**/*.js,**/*.ts' .
 ```
 ### Specify exclude patterns (comma-separated):
 ```bash
