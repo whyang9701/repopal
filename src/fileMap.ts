@@ -54,6 +54,7 @@ export const fileExtensionsToLanguageMap = {
   ".md": "Markdown",
   ".cjs": "JavaScript",
   ".jsx": "JavaScript",
+  ".json": "JSON",
   ".kt": "Kotlin",
   ".kts": "Kotlin Script",
   ".lisp": "Common Lisp",
