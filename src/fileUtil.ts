@@ -43,14 +43,14 @@ function printTree(root: Node, prefix = ''): string {
   return lines.filter(Boolean).join('\n')
 }
 
-export async function buildDirectoryHierarchy(rootDir = '.'): Promise<Array<string>> {
+export async function getFilesFromDirectory(rootDir = '.', includePatterns: Array<string> = ['**/*'], excludePatterns: Array<string> = []): Promise<Array<string>> {
   // Collect files & directories
-  const entries = await fg(['**/*'], {
+  const entries = await fg(includePatterns, {
     cwd: rootDir,
     dot: false,
     onlyFiles: false,
     markDirectories: true,
-    ignore: ['**/node_modules/**', '**/.git/**']
+    ignore: ['**/node_modules/**', '**/.git/**', ...excludePatterns]
   })
 
   return entries
