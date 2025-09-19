@@ -99,3 +99,16 @@ repopal --exclude 'node_modules/**,build/**' .
 ```bash
 repopal -o output.txt .
 ```
+
+### Filter modified files within 7 days
+```bash
+repopal . --recent
+repopal . -r
+```
+
+### Filter modified files more than 7 days
+```bash
+repopal . --recent 14
+repopal . -r 21
+
+```
