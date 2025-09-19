@@ -1,5 +1,7 @@
 // scripts/fileUtil.ts
+import * as path from 'path'
 import fg from 'fast-glob'
+import fs from 'fs'
 
 interface Node {
   name: string
@@ -77,4 +79,19 @@ export function getDirectoryStructureString(entries): string {
     insert(root, cleaned, isDir)
   }
   return printTree(root)
+}
+
+export function getRecentModifiedFiles(rootDirectory: string, filePaths: Array<string>, days: number): Array<string> {
+  const now = new Date()
+  return filePaths.filter(filePath => {
+    const fullPath = path.join(rootDirectory, filePath)
+    try {
+      const fileState = fs.statSync(fullPath)
+      const modifiedTime = new Date(fileState.mtime)
+      return (now.getTime() - modifiedTime.getTime()) < days * 24 * 60 * 60 * 1000
+    } catch (error) {
+      console.error(`Error accessing file: ${fullPath}. ${error.message}`);
+      return false;
+    }
+  })
 }
