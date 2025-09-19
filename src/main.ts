@@ -25,7 +25,7 @@ program
       let currentWorkingDirectory = path.join(process.cwd(), args[0])
       let outputString: string
       // one argument, check args[0] is a directory or file
-      const recentDays = options.recent ? 7 : parseInt(String(options.recent), 10) || 7
+      const recentDays = options.recent ? parseInt(options.recent, 10) : parseInt(String(options.recent), 10) || 7
       if (args.length === 1 && fs.statSync(currentWorkingDirectory).isDirectory()) {
         const gitInfo = await getGitInfo(currentWorkingDirectory)
         const filePathArray = await getFilesFromDirectory(currentWorkingDirectory, includePatterns, excludePatterns)
