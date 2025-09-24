@@ -16,6 +16,7 @@ program
   .addOption(new Option('--include <pattern>', 'include files matching the pattern, ignored if specific files are provided'))
   .addOption(new Option('--exclude <pattern>', 'exclude files matching the pattern, ignored if specific files are provided').conflicts('include'))
   .addOption(new Option('-r, --recent [days]', 'only include the most recently (7 days) modified files per directory'))
+  .addOption(new Option('--preview [lines]', 'enable preview features, if not specified, defaults to 5 lines'))
   .action(async (args, options) => {
     args = args.length ? args : ['.']
     try {
@@ -31,7 +32,7 @@ program
         const filePathArray = await getFilesFromDirectory(currentWorkingDirectory, includePatterns, excludePatterns)
         // Filter recently modified files
         const recentFiles = getRecentModifiedFiles(currentWorkingDirectory, filePathArray, recentDays)
-        outputString = await getOutputString(currentWorkingDirectory, gitInfo, recentFiles)
+        outputString = await getOutputString(currentWorkingDirectory, gitInfo, recentFiles, options.Preview)
       }
       else { // single or multiple files
         currentWorkingDirectory = process.cwd()
@@ -39,7 +40,7 @@ program
         const filepathArray = await getFiles(args)
         // Filter recently modified files
         const recentFiles = getRecentModifiedFiles(currentWorkingDirectory, filepathArray, recentDays)
-        outputString = await getOutputString(currentWorkingDirectory, gitInfo, recentFiles)
+        outputString = await getOutputString(currentWorkingDirectory, gitInfo, recentFiles, options.Preview)
       }
 
       if (options.output) {
@@ -57,7 +58,7 @@ program.parse()
 
 
 // form final output string
-async function getOutputString(currentWorkingDirectory: string, gitInfo: object, filePathArray: Array<string>): Promise<string> {
+async function getOutputString(currentWorkingDirectory: string, gitInfo: object, filePathArray: Array<string>, preview: number): Promise<string> {
   let outputString = `# Repository Context
 
 ## File System Location
@@ -85,12 +86,26 @@ ${'```'}
     // check if file is small enough
     if (fileState.isFile() && fileState.size < 16 * 1024) {
       // read each file content
-      const content = fs.readFileSync(fullPath)
-      lineCount += content.toString().split('\n').length
+      const contentBuffer = fs.readFileSync(fullPath)
+      let contentString;
+      if( preview ) {
+        // console.info("Preview features enabled - currently none implemented")
+        //read first 5 lines only
+        const lines = contentBuffer.toString().split('\n')
+        contentString = lines.slice(0, preview).join('\n')
+        if(lines.length > preview){
+          contentString += `\n... (file truncated, total ${lines.length} lines)`
+        }
+        lineCount += Math.min(lines.length, preview)
+      }
+      else{
+        lineCount += contentBuffer.toString().split('\n').length
+        contentString = contentBuffer.toString()
+      }
       outputString += `
 ### File: ${filePath}
 ${ext === '.md' ? '````' : '```'}${language}
-${content}
+${contentString}
 ${ext === '.md' ? '````' : '```'}
             `
     }
