@@ -3,7 +3,7 @@
 import { Command, Option } from 'commander'
 import * as path from 'path'
 import fs from 'fs'
-import { getFilesFromDirectory, getDirectoryStructureString, getFiles, getRecentModifiedFiles } from './fileUtil.js'
+import { getFilesFromDirectory, getDirectoryStructureString, getFiles, getRecentModifiedFiles, getModifiedTimeString } from './fileUtil.js'
 import {fileExtensionsToLanguageMap} from './fileMap.js'
 import { getGitInfo, getGitInfoString } from './gitUtil.js'
 
@@ -27,6 +27,7 @@ program
       // one argument, check args[0] is a directory or file
       const recentDays = options.recent ? parseInt(options.recent, 10) : parseInt(String(options.recent), 10) || 7
       if (args.length === 1 && fs.statSync(currentWorkingDirectory).isDirectory()) {
+        console.info('directory mode')
         const gitInfo = await getGitInfo(currentWorkingDirectory)
         const filePathArray = await getFilesFromDirectory(currentWorkingDirectory, includePatterns, excludePatterns)
         // Filter recently modified files
@@ -34,6 +35,7 @@ program
         outputString = await getOutputString(currentWorkingDirectory, gitInfo, recentFiles)
       }
       else { // single or multiple files
+        console.info('file mode')
         currentWorkingDirectory = process.cwd()
         const gitInfo = await getGitInfo(currentWorkingDirectory)
         const filepathArray = await getFiles(args)
@@ -88,7 +90,7 @@ ${'```'}
       const content = fs.readFileSync(fullPath)
       lineCount += content.toString().split('\n').length
       outputString += `
-### File: ${filePath}
+### File: ${filePath} (Modified: ${getModifiedTimeString(fileState)})
 ${ext === '.md' ? '````' : '```'}${language}
 ${content}
 ${ext === '.md' ? '````' : '```'}
