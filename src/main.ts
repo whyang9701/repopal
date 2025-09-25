@@ -32,7 +32,7 @@ program
         const filePathArray = await getFilesFromDirectory(currentWorkingDirectory, includePatterns, excludePatterns)
         // Filter recently modified files
         const recentFiles = getRecentModifiedFiles(currentWorkingDirectory, filePathArray, recentDays)
-        outputString = await getOutputString(currentWorkingDirectory, gitInfo, recentFiles, options.Preview)
+        outputString = await getOutputString(currentWorkingDirectory, gitInfo, recentFiles, options.preview)
       }
       else { // single or multiple files
         currentWorkingDirectory = process.cwd()
@@ -40,7 +40,7 @@ program
         const filepathArray = await getFiles(args)
         // Filter recently modified files
         const recentFiles = getRecentModifiedFiles(currentWorkingDirectory, filepathArray, recentDays)
-        outputString = await getOutputString(currentWorkingDirectory, gitInfo, recentFiles, options.Preview)
+        outputString = await getOutputString(currentWorkingDirectory, gitInfo, recentFiles, options.preview)
       }
 
       if (options.output) {
@@ -96,7 +96,7 @@ ${'```'}
         if(lines.length > preview){
           contentString += `\n... (file truncated, total ${lines.length} lines)`
         }
-        lineCount += Math.min(lines.length, preview)
+        lineCount += contentString.split('\n').length
       }
       else{
         lineCount += contentBuffer.toString().split('\n').length
