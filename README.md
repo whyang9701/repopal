@@ -110,5 +110,11 @@ repopal . -r
 ```bash
 repopal . --recent 14
 repopal . -r 21
-
 ```
+
+### preview the files
+```
+# default first 5 lines
+repopal . --preview
+# specify number of lines
+repopal . --preview 10
