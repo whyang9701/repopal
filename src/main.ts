@@ -89,8 +89,8 @@ ${'```'}
       const contentBuffer = fs.readFileSync(fullPath)
       let contentString;
       if( preview ) {
-        // console.info("Preview features enabled - currently none implemented")
         //read first 5 lines only
+        preview = typeof preview === 'boolean' ? 5 : parseInt(String(preview), 10)
         const lines = contentBuffer.toString().split('\n')
         contentString = lines.slice(0, preview).join('\n')
         if(lines.length > preview){
