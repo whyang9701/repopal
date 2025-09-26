@@ -95,22 +95,6 @@ repopal --include '**/*.js,**/*.ts' .
 ```bash
 repopal --exclude 'node_modules/**,build/**' .
 ```
-### Output to a file:
-```bash
-repopal -o output.txt .
-```
-
-### Filter modified files within 7 days
-```bash
-repopal . --recent
-repopal . -r
-```
-
-### Filter modified files more than 7 days
-```bash
-repopal . --recent 14
-repopal . -r 21
-```
 
 ### preview the files
 ```
@@ -118,3 +102,20 @@ repopal . -r 21
 repopal . --preview
 # specify number of lines
 repopal . --preview 10
+```
+
+### Filter modified files within 7 days
+```bash
+repopal . -r
+repopal . --recent
+```
+
+### Filter modified files more than 7 days
+```bash
+repopal . -r 21
+repopal . --recent 14
+```
+### Output to a file:
+```bash
+repopal -o output.txt .
+```
