@@ -67,7 +67,7 @@ tsconfig.release.json
 ```
 
 ## File Contents
-### File: package.json (Modified: 2025-09-25 17:24:26)
+### File: package.json
 ```JSON
 {
   "name": "repopal",
@@ -87,6 +87,7 @@ tsconfig.release.json
 ~~~
 
 ## Additional Usage
+
 ### Specify include patterns (comma-separated):
 ```bash
 repopal --include '**/*.js,**/*.ts' .
@@ -95,20 +96,29 @@ repopal --include '**/*.js,**/*.ts' .
 ```bash
 repopal --exclude 'node_modules/**,build/**' .
 ```
-### Output to a file:
-```bash
-repopal -o output.txt .
-```
+
 
 ### Filter modified files within 7 days
 ```bash
-repopal . --recent
 repopal . -r
+repopal . --recent
 ```
 
 ### Filter modified files more than 7 days
 ```bash
-repopal . --recent 14
 repopal . -r 21
+repopal . --recent 14
+```
 
+### preview the files
+```
+# default first 5 lines
+repopal . --preview
+# specify number of lines
+repopal . --preview 10
+```
+
+### Output to a file:
+```bash
+repopal -o output.txt .
 ```
