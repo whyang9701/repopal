@@ -2,6 +2,7 @@
 import * as path from 'path'
 import fg from 'fast-glob'
 import fs from 'fs'
+import { format } from 'date-fns'
 
 interface Node {
   name: string
@@ -94,4 +95,8 @@ export function getRecentModifiedFiles(rootDirectory: string, filePaths: Array<s
       return false;
     }
   })
+}
+
+export function getModifiedTimeString(fileState: fs.Stats): string {
+  return format(fileState.mtime, "yyyy-MM-dd HH:mm:ss")
 }

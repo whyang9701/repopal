@@ -3,7 +3,7 @@
 import { Command, Option } from 'commander'
 import * as path from 'path'
 import fs from 'fs'
-import { getFilesFromDirectory, getDirectoryStructureString, getFiles, getRecentModifiedFiles } from './fileUtil.js'
+import { getFilesFromDirectory, getDirectoryStructureString, getFiles, getRecentModifiedFiles, getModifiedTimeString } from './fileUtil.js'
 import {fileExtensionsToLanguageMap} from './fileMap.js'
 import { getGitInfo, getGitInfoString } from './gitUtil.js'
 
@@ -103,7 +103,7 @@ ${'```'}
         contentString = contentBuffer.toString()
       }
       outputString += `
-### File: ${filePath}
+### File: ${filePath} (Modified: ${getModifiedTimeString(fileState)})
 ${ext === '.md' ? '````' : '```'}${language}
 ${contentString}
 ${ext === '.md' ? '````' : '```'}

@@ -87,6 +87,7 @@ tsconfig.release.json
 ~~~
 
 ## Additional Usage
+
 ### Specify include patterns (comma-separated):
 ```bash
 repopal --include '**/*.js,**/*.ts' .
@@ -96,13 +97,6 @@ repopal --include '**/*.js,**/*.ts' .
 repopal --exclude 'node_modules/**,build/**' .
 ```
 
-### preview the files
-```
-# default first 5 lines
-repopal . --preview
-# specify number of lines
-repopal . --preview 10
-```
 
 ### Filter modified files within 7 days
 ```bash
@@ -115,6 +109,15 @@ repopal . --recent
 repopal . -r 21
 repopal . --recent 14
 ```
+
+### preview the files
+```
+# default first 5 lines
+repopal . --preview
+# specify number of lines
+repopal . --preview 10
+```
+
 ### Output to a file:
 ```bash
 repopal -o output.txt .
