@@ -6,17 +6,22 @@ import fs from 'fs'
 import { getFilesFromDirectory, getDirectoryStructureString, getFiles, getRecentModifiedFiles, getModifiedTimeString } from './fileUtil.js'
 import {fileExtensionsToLanguageMap} from './fileMap.js'
 import { getGitInfo, getGitInfoString } from './gitUtil.js'
+import { loadConfig } from './configUtil.js'
+
+// Load TOML config file if it exists
+const config = loadConfig()
 
 const program = new Command()
 program
   .name('repopal')
   .description('repo reader for LLM').version('0.1.0', '-v, --version', 'output the current version')
   .argument('[args...]', 'directory to scan or list of files')
-  .addOption(new Option('-o, --output <file>', 'output to file instead of console'))
-  .addOption(new Option('--include <pattern>', 'include files matching the pattern, ignored if specific files are provided'))
-  .addOption(new Option('--exclude <pattern>', 'exclude files matching the pattern, ignored if specific files are provided').conflicts('include'))
+  .addOption(new Option('-o, --output <file>', 'output to file instead of console').default(config.output))
+  .addOption(new Option('--include <pattern>', 'include files matching the pattern, ignored if specific files are provided').default(config.include))
+  .addOption(new Option('--exclude <pattern>', 'exclude files matching the pattern, ignored if specific files are provided').conflicts('include').default(config.exclude))
+  //.addOption(new Option('-r, --recent [days]', 'only include the most recently (7 days) modified files per directory').default(config.recent))
   .addOption(new Option('-r, --recent [days]', 'only include the most recently (7 days) modified files per directory'))
-  .addOption(new Option('--preview [lines]', 'enable preview features, if not specified, defaults to 5 lines'))
+  .addOption(new Option('--preview [lines]', 'enable preview features, if not specified, defaults to 5 lines').default(config.preview))
   .action(async (args, options) => {
     args = args.length ? args : ['.']
     try {
