@@ -11,6 +11,25 @@ repo reader for LLM
 - Read and analyze repositories
 - Supports multiple file formats
 - Easy integration with LLMs
+- Configuration via TOML dotfile
+
+## Configuration File
+
+You can create a `.repopal-config.toml` file in your repository to set default options:
+
+```toml
+# All options are optional
+output = "output.txt"
+include = "*.js,*.ts,*.md"
+exclude = "**/__tests__/**,node_modules/**"
+preview = 10
+```
+
+- If the config file doesn't exist, it will be ignored
+- Command line arguments override config file settings
+- Invalid TOML files will cause the tool to exit with an error
+- Unrecognized options are ignored for future extensibility
+
 ## How to use
 ```bash
 repopal .
