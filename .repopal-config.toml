@@ -1,0 +1,20 @@
+# Sample repopal configuration file
+# Place this file in your repository root as .repopal-config.toml
+#
+# All options are optional. Command line arguments will override these settings.
+# The tool will ignore any unrecognized options for future extensibility.
+
+# Output file path - where to write the repository context
+output = "output.txt"
+
+# Only include files matching these patterns
+# include = "*.js,*.ts,*.md"
+
+# Exclude files matching these patterns (conflicts with include)
+exclude = "**/__tests__/**,"
+
+# Number of days for recent files filter
+# recent = 1
+
+# Number of lines to preview per file
+preview = 10
