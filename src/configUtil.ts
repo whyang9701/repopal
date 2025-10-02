@@ -9,7 +9,7 @@ export interface RepopalConfig {
   output?: string
   include?: string
   exclude?: string
-  //recent?: number
+  recent?: number
   preview?: number
 }
 

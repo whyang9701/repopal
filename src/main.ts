@@ -19,8 +19,7 @@ program
   .addOption(new Option('-o, --output <file>', 'output to file instead of console').default(config.output))
   .addOption(new Option('--include <pattern>', 'include files matching the pattern, ignored if specific files are provided').default(config.include))
   .addOption(new Option('--exclude <pattern>', 'exclude files matching the pattern, ignored if specific files are provided').conflicts('include').default(config.exclude))
-  //.addOption(new Option('-r, --recent [days]', 'only include the most recently (7 days) modified files per directory').default(config.recent))
-  .addOption(new Option('-r, --recent [days]', 'only include the most recently (7 days) modified files per directory'))
+  .addOption(new Option('-r, --recent [days]', 'only include the most recently (7 days) modified files per directory').default(config.recent))
   .addOption(new Option('--preview [lines]', 'enable preview features, if not specified, defaults to 5 lines').default(config.preview))
   .action(async (args, options) => {
     args = args.length ? args : ['.']
