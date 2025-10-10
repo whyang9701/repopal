@@ -1,7 +1,16 @@
 import { simpleGit } from "simple-git"
 import { format } from 'date-fns'
+
+export interface GitInfo {
+  hash: string,
+  branch: string,
+  author: string,
+  email: string,
+  date: string
+}
+
 //get git info
-export async function getGitInfo(cwd): Promise<object> {
+export async function getGitInfo(cwd: string): Promise<GitInfo> {
 
   const git = simpleGit({ baseDir: cwd })
   const logResult = await git.log()
@@ -14,12 +23,4 @@ export async function getGitInfo(cwd): Promise<object> {
     date: format(logResult.latest.date, "EEE MMM dd HH:mm:ss yyyy XXX")
   }
   return result
-}
-
-// output util for git info
-export function getGitInfoString(result): string {
-  return `- Commit: ${result.hash}
-- Branch: ${result.branch}
-- Author: ${result.author} <${result.email}>
-- Date: ${result.date}`
 }
