@@ -3,11 +3,10 @@
 import { Command, Option } from 'commander'
 import * as path from 'path'
 import fs from 'fs'
-import { getFilesFromDirectory, getDirectoryStructureString, getFiles, getRecentModifiedFiles, getModifiedTimeString } from './fileUtil.js'
-import {fileExtensionsToLanguageMap} from './fileMap.js'
-import { getGitInfo, getGitInfoString } from './gitUtil.js'
-import { loadConfig } from './configUtil.js'
-
+import { getFilesFromDirectory, getFiles, getRecentModifiedFiles } from './file.js'
+import { getGitInfo } from './git.js'
+import { loadConfig } from './loadConfig.js'
+import { getOutputString } from './output.js'
 // Load TOML config file if it exists
 const config = loadConfig()
 
@@ -28,25 +27,21 @@ program
       const excludePatterns = options.exclude ? String(options.exclude).split(',') : []
       // first arg is directory or file
       let currentWorkingDirectory = path.join(process.cwd(), args[0])
-      let outputString: string
+      let filepathArray: Array<string> = []
       // one argument, check args[0] is a directory or file
-      const recentDays = options.recent ? parseInt(options.recent, 10) : parseInt(String(options.recent), 10) || 7
       if (args.length === 1 && fs.statSync(currentWorkingDirectory).isDirectory()) {
-        const gitInfo = await getGitInfo(currentWorkingDirectory)
-        const filePathArray = await getFilesFromDirectory(currentWorkingDirectory, includePatterns, excludePatterns)
-        // Filter recently modified files
-        const recentFiles = getRecentModifiedFiles(currentWorkingDirectory, filePathArray, recentDays)
-        outputString = await getOutputString(currentWorkingDirectory, gitInfo, recentFiles, options.preview)
+        filepathArray = await getFilesFromDirectory(currentWorkingDirectory, includePatterns, excludePatterns)
       }
-      else { // single or multiple files
+      else {
         currentWorkingDirectory = process.cwd()
-        const gitInfo = await getGitInfo(currentWorkingDirectory)
-        const filepathArray = await getFiles(args)
-        // Filter recently modified files
-        const recentFiles = getRecentModifiedFiles(currentWorkingDirectory, filepathArray, recentDays)
-        outputString = await getOutputString(currentWorkingDirectory, gitInfo, recentFiles, options.preview)
+        filepathArray = await getFiles(args)
       }
-
+      if (options.recent) {
+        const recentDays = parseInt(String(options.recent), 10) || 7
+        filepathArray = getRecentModifiedFiles(currentWorkingDirectory, filepathArray, recentDays)
+      }
+      const gitInfo = await getGitInfo(currentWorkingDirectory)
+      const outputString = await getOutputString(currentWorkingDirectory, gitInfo, filepathArray, options.preview)
       if (options.output) {
         fs.writeFileSync(options.output, outputString)
       } else {
@@ -61,73 +56,4 @@ program
 program.parse()
 
 
-// form final output string
-async function getOutputString(currentWorkingDirectory: string, gitInfo: object, filePathArray: Array<string>, preview: number): Promise<string> {
-  let outputString = `# Repository Context
-
-## File System Location
-
-${currentWorkingDirectory}
-
-## Git Info
-
-${getGitInfoString(gitInfo)}
-
-## Structure
-
-${'```'}
-${getDirectoryStructureString(filePathArray)}
-${'```'}
-
-## File Contents
-`
-  let lineCount = 0
-  filePathArray.forEach(filePath => {
-    const fullPath = path.join(currentWorkingDirectory, filePath)
-    const ext = path.extname(filePath).toLowerCase()
-    const language = fileExtensionsToLanguageMap[ext] || ''
-    const fileState = fs.statSync(fullPath)
-    // check if file is small enough
-    if (fileState.isFile() && fileState.size < 16 * 1024) {
-      // read each file content
-      const contentBuffer = fs.readFileSync(fullPath)
-      let contentString;
-      if( preview ) {
-        //read first 5 lines only
-        preview = typeof preview === 'boolean' ? 5 : parseInt(String(preview), 10)
-        const lines = contentBuffer.toString().split('\n')
-        contentString = lines.slice(0, preview).join('\n')
-        if(lines.length > preview){
-          contentString += `\n... (file truncated, total ${lines.length} lines)`
-        }
-        lineCount += contentString.split('\n').length
-      }
-      else{
-        lineCount += contentBuffer.toString().split('\n').length
-        contentString = contentBuffer.toString()
-      }
-      outputString += `
-### File: ${filePath} (Modified: ${getModifiedTimeString(fileState)})
-${ext === '.md' ? '````' : '```'}${language}
-${contentString}
-${ext === '.md' ? '````' : '```'}
-            `
-    }
-    else if (fileState.isFile()) {
-      outputString += `
-### File: ${filePath}
-${'```'}
-File too large to include (over 16KB)
-${'```'}
-            `
-    }
-  })
-  outputString += `
-## Summary
-- Total files: ${filePathArray.length}
-- Total lines: ${lineCount}
-`
-  return outputString
-
-}
 
