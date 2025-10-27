@@ -1,5 +1,6 @@
 import { simpleGit } from "simple-git"
 import { format } from 'date-fns'
+import * as path from 'path'
 
 export interface GitInfo {
   hash: string,
@@ -23,4 +24,11 @@ export async function getGitInfo(cwd: string): Promise<GitInfo> {
     date: format(logResult.latest.date, "EEE MMM dd HH:mm:ss yyyy XXX")
   }
   return result
+}
+
+export async function cloneRemoteRepo(remoteUrl: string): Promise<string> {
+  const tempDir = path.join('temp')
+  const git = simpleGit()
+  await git.clone(remoteUrl, tempDir)
+  return tempDir
 }
