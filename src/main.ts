@@ -25,8 +25,7 @@ program
     try {
       if (options.remote) {
         const tempDir = await cloneRemoteRepo(options.remote)
-        args = [tempDir]
-        await main(options, args)
+        await main(options, [tempDir])
         // clean up temp directory
         fs.rmSync(tempDir, { recursive: true, force: true })
       }
