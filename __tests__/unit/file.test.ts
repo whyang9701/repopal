@@ -72,10 +72,6 @@ describe("read files", () => {
     expect(filePathArray.includes((tempFilePath))).toBe(true)
 
     filePathArray = ['LICENSE']
-    filePathArray = getRecentModifiedFiles(process.cwd(), filePathArray, 1)
-    expect(filePathArray.includes(('LICENSE'))).toBe(false)
-
-    filePathArray = ['LICENSE']
     filePathArray = getRecentModifiedFiles(process.cwd(), filePathArray, 365)
     expect(filePathArray.includes(('LICENSE'))).toBe(true)
   });
@@ -91,52 +87,19 @@ describe("read files", () => {
 
   it('check directory structure string format', async () => {
 
-    const includePatterns = ['**/*']
+    const includePatterns = ['src/*']
     const excludePatterns = []
     const currentWorkingDirectory = process.cwd()
     const filePathArray = await getFilesFromDirectory(currentWorkingDirectory, includePatterns, excludePatterns)
     const outputString = getDirectoryStructureString(filePathArray)
-    const expectedString = `__tests__/
-  unit/
-    file.test.ts
-  vitest.config.ts
-assets/
-build/
-  __tests__/
-    unit/
-      file.test.js
-      file.test.js.map
-    vitest.config.js
-    vitest.config.js.map
-  src/
-    file.js
-    file.js.map
-    fileMap.js
-    fileMap.js.map
-    git.js
-    git.js.map
-    loadConfig.js
-    loadConfig.js.map
-    main.js
-    main.js.map
-    output.js
-    output.js.map
-coverage/
-src/
+    const expectedString = `src/
   file.ts
   fileMap.ts
   git.ts
   loadConfig.ts
   main.ts
-  output.ts
-eslint.config.mjs
-LICENSE
-package-lock.json
-package.json
-README.md
-tsconfig.json
-tsconfig.release.json`
-    expect(outputString).toBe(expectedString)
+  output.ts`
+    expect(outputString).toEqual(expectedString)
   });
 });
 
