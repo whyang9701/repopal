@@ -83,7 +83,7 @@ describe("read files", () => {
   it('modified time string format', async () => {
 
     const fileState = fs.statSync(tempFilePath)
-    let timestampString = getModifiedTimeString(fileState)
+    const timestampString = getModifiedTimeString(fileState)
     expect(timestampString).toMatch(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/)
 
 
