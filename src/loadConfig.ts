@@ -1,16 +1,16 @@
 // scripts/configUtil.ts
-import * as fs from 'fs'
-import * as path from 'path'
-import * as toml from '@iarna/toml'
+import * as fs from 'fs';
+import * as path from 'path';
+import * as toml from '@iarna/toml';
 
-const CONFIG_FILENAME = '.repopal-config.toml'
+const CONFIG_FILENAME = '.repopal-config.toml';
 
 export interface RepopalConfig {
-  output?: string
-  include?: string
-  exclude?: string
-  recent?: number
-  preview?: number
+  output?: string;
+  include?: string;
+  exclude?: string;
+  recent?: number;
+  preview?: number;
 }
 
 /**
@@ -20,24 +20,23 @@ export interface RepopalConfig {
  * @throws Error if TOML file exists but cannot be parsed
  */
 export function loadConfig(cwd: string = process.cwd()): RepopalConfig {
-  const configPath = path.join(cwd, CONFIG_FILENAME)
-  
+  const configPath = path.join(cwd, CONFIG_FILENAME);
+
   // If config file doesn't exist, return empty config
   if (!fs.existsSync(configPath)) {
-    return {}
+    return {};
   }
 
   try {
-    const configContent = fs.readFileSync(configPath, 'utf-8')
-    const parsed = toml.parse(configContent) as RepopalConfig
-    
+    const configContent = fs.readFileSync(configPath, 'utf-8');
+    const parsed = toml.parse(configContent) as RepopalConfig;
+
     // Return only the config object, ignoring any unrecognized options
     // This allows for future extensibility
-    return parsed
+    return parsed;
   } catch (error) {
-    console.error(`Error: Failed to parse ${CONFIG_FILENAME}`)
-    console.error(error.message)
-    process.exit(1)
+    console.error(`Error: Failed to parse ${CONFIG_FILENAME}`);
+    console.error(error.message);
+    process.exit(1);
   }
 }
-
