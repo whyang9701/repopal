@@ -1,11 +1,15 @@
-/* eslint-disable vitest/no-commented-out-tests */
-import { describe, it, expect } from 'vitest';
-import { getFilesFromDirectory, getFiles, getRecentModifiedFiles } from '../../src/file.js'
+import { describe, it, expect, beforeAll } from 'vitest';
+import { getFilesFromDirectory, getFiles, getRecentModifiedFiles, getModifiedTimeString, getDirectoryStructureString } from '../../src/file.js'
 import path from 'path';
 import os from 'os';
 import fs from 'fs';
 describe("read files", () => {
 
+  let tempFilePath: string
+  beforeAll(async () => {
+    tempFilePath = await (createTempFile('This is a temporary file for testing purposes.\nIt has multiple lines.\nLine 3.\nLine 4.\nLine 5.', 'temp-file-', '.txt'));
+
+  });
   it('gets files from directory', async () => {
     const includePatterns = ['**/*']
     const excludePatterns = []
@@ -36,7 +40,6 @@ describe("read files", () => {
     expect(filePathArray.filter((filePath) => { return filePath.includes('test.ts') }).length).toBeGreaterThan(0)
   });
 
-
   it('gets files from directory exclude tests sub directory', async () => {
     const includePatterns = ['**/*']
     const excludePatterns = ['__tests__/**']
@@ -63,7 +66,7 @@ describe("read files", () => {
 
   it('filter recent modified files', async () => {
     // create a test file and modify its timestamp
-    const tempFilePath: string = (await createTempFile('test_recent.txt')) as string
+    //
     let filePathArray = [tempFilePath]
     filePathArray = getRecentModifiedFiles('/', filePathArray, 1)
     expect(filePathArray.includes((tempFilePath))).toBe(true)
@@ -77,10 +80,68 @@ describe("read files", () => {
     expect(filePathArray.includes(('LICENSE'))).toBe(true)
   });
 
+  it('modified time string format', async () => {
+
+    const fileState = fs.statSync(tempFilePath)
+    let timestampString = getModifiedTimeString(fileState)
+    expect(timestampString).toMatch(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/)
+
+
+  });
+
+  it('check directory structure string format', async () => {
+
+    const includePatterns = ['**/*']
+    const excludePatterns = []
+    const currentWorkingDirectory = process.cwd()
+    const filePathArray = await getFilesFromDirectory(currentWorkingDirectory, includePatterns, excludePatterns)
+    const outputString = getDirectoryStructureString(filePathArray)
+    const expectedString = `__tests__/
+  unit/
+    file.test.ts
+  vitest.config.ts
+assets/
+build/
+  __tests__/
+    unit/
+      file.test.js
+      file.test.js.map
+    vitest.config.js
+    vitest.config.js.map
+  src/
+    file.js
+    file.js.map
+    fileMap.js
+    fileMap.js.map
+    git.js
+    git.js.map
+    loadConfig.js
+    loadConfig.js.map
+    main.js
+    main.js.map
+    output.js
+    output.js.map
+coverage/
+src/
+  file.ts
+  fileMap.ts
+  git.ts
+  loadConfig.ts
+  main.ts
+  output.ts
+eslint.config.mjs
+LICENSE
+package-lock.json
+package.json
+README.md
+tsconfig.json
+tsconfig.release.json`
+    expect(outputString).toBe(expectedString)
+  });
 });
 
 
-async function createTempFile(data, prefix = 'temp-file-', suffix = '.txt') {
+async function createTempFile(data, prefix = 'temp-file-', suffix = '.txt'): Promise<string> {
   try {
     // Get the system's temporary directory
     const tempDir = os.tmpdir();
