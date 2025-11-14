@@ -10,7 +10,7 @@ interface Node {
   children?: Map<string, Node>;
 }
 
-function insert(root: Node, relPath: string, isDir: boolean): void {
+export function insert(root: Node, relPath: string, isDir: boolean): void {
   const parts = relPath.split('/').filter(Boolean);
   let current = root;
   for (let i = 0; i < parts.length; i++) {
