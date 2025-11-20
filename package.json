@@ -1,10 +1,44 @@
 {
-  "name": "repopal",
-  "version": "0.0.1",
+  "name": "@whyang9701/repopal",
+  "version": "1.0.0",
   "description": "repo reader for LLM",
+  "homepage": "https://github.com/whyang9701/repopal#readme",
+  "bugs": {
+    "url": "https://github.com/whyang9701/repopal/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/whyang9701/repopal.git"
+  },
+  "license": "Apache-2.0",
+  "author": "whyang9701 <whyang9701@gmail.com>",
   "type": "module",
-  "engines": {
-    "node": ">= 22.11 < 23"
+  "main": "\"\"",
+  "bin": {
+    "repopal": "build/src/main.js"
+  },
+  "scripts": {
+    "start": "node build/src/main.js",
+    "clean": "rimraf coverage build tmp",
+    "prebuild": "npm run lint",
+    "build": "tsc -p tsconfig.json",
+    "build:watch": "tsc -w -p tsconfig.json",
+    "build:release": "npm run clean && tsc -p tsconfig.release.json",
+    "lint": "eslint .",
+    "test": "vitest run unit --config __tests__/vitest.config.ts",
+    "test:coverage": "vitest run unit --config __tests__/vitest.config.ts --coverage.enabled --coverage.all",
+    "test:ui": "vitest --ui --config __tests__/vitest.config.ts --coverage.enabled --coverage.all",
+    "prettier": "prettier \"{src,__{tests}__}/**/*.{ts,mts}\" --config .prettierrc --write",
+    "prettier:check": "prettier \"{src,__{tests}__}/**/*.{ts,mts}\" --config .prettierrc --check",
+    "test:watch": "vitest unit"
+  },
+  "dependencies": {
+    "@iarna/toml": "^2.2.5",
+    "commander": "^14.0.0",
+    "date-fns": "^4.1.0",
+    "fast-glob": "^3.3.3",
+    "simple-git": "^3.28.0",
+    "tslib": "~2.8"
   },
   "devDependencies": {
     "@eslint/js": "~9.17",
@@ -24,32 +58,7 @@
     "typescript-eslint": "~8.19",
     "vitest": "~2.1"
   },
-  "scripts": {
-    "start": "node build/src/main.js",
-    "clean": "rimraf coverage build tmp",
-    "prebuild": "npm run lint",
-    "build": "tsc -p tsconfig.json",
-    "build:watch": "tsc -w -p tsconfig.json",
-    "build:release": "npm run clean && tsc -p tsconfig.release.json",
-    "lint": "eslint .",
-    "test": "vitest run unit --config __tests__/vitest.config.ts",
-    "test:coverage": "vitest run unit --config __tests__/vitest.config.ts --coverage.enabled --coverage.all",
-    "test:ui": "vitest --ui --config __tests__/vitest.config.ts --coverage.enabled --coverage.all",
-    "prettier": "prettier \"{src,__{tests}__}/**/*.{ts,mts}\" --config .prettierrc --write",
-    "prettier:check": "prettier \"{src,__{tests}__}/**/*.{ts,mts}\" --config .prettierrc --check",
-    "test:watch": "vitest unit"
-  },
-  "author": "Jakub Synowiec <jsynowiec@users.noreply.github.com>",
-  "license": "Apache-2.0",
-  "dependencies": {
-    "@iarna/toml": "^2.2.5",
-    "commander": "^14.0.0",
-    "date-fns": "^4.1.0",
-    "fast-glob": "^3.3.3",
-    "simple-git": "^3.28.0",
-    "tslib": "~2.8"
-  },
-  "bin": {
-    "repopal": "./build/src/main.js"
+  "engines": {
+    "node": ">= 22.11 < 23"
   }
 }
