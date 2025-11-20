@@ -2,11 +2,14 @@
 repo reader for LLM
 
 ## How to install
-1. git clone https://github.com/whyang9701/repopal.git
-2. cd repopal
-3. npm install
-4. npm run build
-3. npm link
+1. ``` npm install -g @whyang9701/repopal```
+
+## How to build and install locally
+1. ``` git clone https://github.com/whyang9701/repopal.git ```
+2. ``` cd repopal ```
+3. ``` npm install ```
+4. ``` npm run build ```
+5. ``` npm link ```
 ## Features
 - Read and analyze repositories
 - Supports multiple file formats
